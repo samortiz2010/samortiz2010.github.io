@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Classic Gallery</title>
+    <style>
+      :root {
+        --wall: #e3e3e3;
+        --frame-dark: #4a4a4a;
+        --frame-light: #6d6d6d;
+        --shadow: rgba(0, 0, 0, 0.2);
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: linear-gradient(
+          180deg,
+          #bebebe 0%,
+          #8f8f8f 50%,
+          #696969 100%
+        );
+        color: #f4f4f4;
+        font-family: "Georgia", serif;
+        padding: 2rem 1rem 1rem;
+      }
+
+      h1 {
+        margin: 0 auto 1.8rem;
+        max-width: 950px;
+        text-align: center;
+        font-size: 2.8rem;
+        letter-spacing: 0.08em;
+        color: #6b6460;
+        font-weight: 300;
+        position: relative;
+        padding-bottom: 1.2rem;
+      }
+
+      h1::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 2px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          #c9bfb5 50%,
+          transparent
+        );
+      }
+
+      .gallery {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1.2rem;
+        max-width: 860px;
+        width: min(100%, 860px);
+        margin: 0 auto;
+      }
+
+      @media (max-width: 900px) {
+        .gallery {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          width: min(100%, 680px);
+        }
+      }
+
+      @media (max-width: 640px) {
+        .gallery {
+          grid-template-columns: 1fr;
+          width: 100%;
+        }
+      }
+
+      .frame {
+        cursor: zoom-in;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        background: #ededed;
+        box-shadow:
+          0 6px 16px var(--shadow),
+          inset 0 1px 0 rgba(255, 255, 255, 0.6);
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
+      }
+
+      .frame:hover {
+        transform: translateY(-4px);
+        box-shadow:
+          0 10px 24px var(--shadow),
+          inset 0 1px 0 rgba(255, 255, 255, 0.6);
+      }
+
+      /* Frame Style 1: Dark grey frame */
+      .frame--style1 {
+        border: 20px solid var(--frame-dark);
+        border-right-width: 22px;
+        border-bottom-width: 24px;
+        box-shadow:
+          inset 0 0 0 3px var(--frame-light),
+          0 6px 16px var(--shadow),
+          inset 0 1px 0 rgba(255, 255, 255, 0.6);
+      }
+
+      .frame--style1:hover {
+        box-shadow:
+          inset 0 0 0 3px #dcccbd,
+          0 10px 24px var(--shadow),
+          inset 0 1px 0 rgba(255, 255, 255, 0.8);
+      }
+
+      /* Frame Style 2: Dark grey with medium accent */
+      .frame--style2 {
+        border: 16px solid #5c5c5c;
+        border-right-width: 20px;
+        border-bottom-width: 22px;
+        box-shadow:
+          inset 0 0 0 2px #8a8a8a,
+          0 6px 16px var(--shadow),
+          inset 0 1px 0 rgba(255, 255, 255, 0.6);
+      }
+
+      .frame--style2:hover {
+        box-shadow:
+          inset 0 0 0 2px #8a8a8a,
+          0 10px 24px var(--shadow),
+          inset 0 1px 0 rgba(255, 255, 255, 0.6);
+      }
+
+      /* Frame Style 3: Dark charcoal with soft inner line */
+      .frame--style3 {
+        border: 18px solid #3f3f3f;
+        border-right-width: 21px;
+        border-bottom-width: 23px;
+        box-shadow:
+          inset 0 0 0 3px #676767,
+          0 6px 16px var(--shadow),
+          inset 0 1px 0 rgba(255, 255, 255, 0.6);
+      }
+
+      .frame--style3:hover {
+        box-shadow:
+          inset 0 0 0 3px #d4cfc4,
+          0 10px 24px var(--shadow),
+          inset 0 1px 0 rgba(255, 255, 255, 0.8);
+      }
+
+      .frame img {
+        display: block;
+        width: 100%;
+        height: auto;
+        border: none;
+        border-radius: 0;
+        object-fit: contain;
+      }
+
+      .caption {
+        margin: 0.8rem;
+        font-size: 0.9rem;
+        text-align: center;
+        color: #b8b8b8;
+        font-style: italic;
+        letter-spacing: 0.02em;
+      }
+
+      .lightbox {
+        position: fixed;
+        inset: 0;
+        background: rgba(16, 13, 10, 0.8);
+        z-index: 999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 1.2rem;
+      }
+
+      .lightbox.active {
+        display: flex;
+      }
+
+      .lightbox img {
+        max-width: 95vw;
+        max-height: 90vh;
+        border: 12px solid #f8f4e8;
+        border-radius: 12px;
+        box-shadow: 0 14px 35px rgba(0, 0, 0, 0.6);
+      }
+
+      .lightbox-close {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        width: 46px;
+        height: 46px;
+        border: 0;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 50%;
+        font-size: 1.5rem;
+        color: #645b52;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+      }
+
+      .lightbox-close:hover {
+        background: rgba(255, 255, 255, 0.95);
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Classic Museum Gallery</h1>
+
+    <section
+      class="gallery"
+      aria-label="Classic gallery wall with vintage frames"
+    >
+      <figure class="frame frame--style1" data-caption="Line">
+        <img src="assets/Line.JPG" alt="Line" />
+        <figcaption class="caption">Line</figcaption>
+      </figure>
+      <figure class="frame frame--style2" data-caption="Contrast">
+        <img src="assets/Contrast.JPG" alt="Contrast" />
+        <figcaption class="caption">Contrast</figcaption>
+      </figure>
+      <figure class="frame frame--style3" data-caption="Beauty">
+        <img src="assets/Beauty.JPG" alt="Beauty" />
+        <figcaption class="caption">Beauty</figcaption>
+      </figure>
+      <figure class="frame frame--style1" data-caption="Ants POF">
+        <img src="assets/Ants POF.JPG" alt="Ants POF" />
+        <figcaption class="caption">Ants POF</figcaption>
+      </figure>
+      <figure class="frame frame--style2" data-caption="Shape">
+        <img src="assets/Shape.JPG" alt="Shape" />
+        <figcaption class="caption">Shape</figcaption>
+      </figure>
+      <figure class="frame frame--style3" data-caption="What represents me">
+        <img src="assets/What represents me.JPG" alt="What represents me" />
+        <figcaption class="caption">What represents me</figcaption>
+      </figure>
+      <figure class="frame frame--style1" data-caption="Texture">
+        <img src="assets/texture.JPG" alt="Texture" />
+        <figcaption class="caption">Texture</figcaption>
+      </figure>
+      <figure class="frame frame--style2" data-caption="Symbol">
+        <img src="assets/Symbol.JPG" alt="Symbol" />
+        <figcaption class="caption">Symbol</figcaption>
+      </figure>
+      <figure class="frame frame--style3" data-caption="Rule of thirds">
+        <img src="assets/Rule of thirds.JPG" alt="Rule of thirds" />
+        <figcaption class="caption">Rule of thirds</figcaption>
+      </figure>
+      <figure class="frame frame--style1" data-caption="School spirit">
+        <img src="assets/school spirit.JPG" alt="School spirit" />
+        <figcaption class="caption">School spirit</figcaption>
+      </figure>
+    </section>
+
+    <div
+      class="lightbox"
+      aria-hidden="true"
+      aria-label="Enlarged image view"
+      role="dialog"
+    >
+      <button class="lightbox-close" aria-label="Close enlarged image">
+        ×
+      </button>
+      <img id="lightboxImage" src="" alt="" role="img" />
+    </div>
+
+    <script>
+      const frames = document.querySelectorAll(".frame");
+      const lightbox = document.querySelector(".lightbox");
+      const lightboxImage = document.getElementById("lightboxImage");
+      const closeBtn = document.querySelector(".lightbox-close");
+
+      frames.forEach((frame) => {
+        frame.addEventListener("click", () => {
+          const img = frame.querySelector("img");
+          lightboxImage.src = img.src;
+          lightboxImage.alt =
+            frame.dataset.caption || img.alt || "Enlarged artwork";
+          lightbox.classList.add("active");
+          lightbox.setAttribute("aria-hidden", "false");
+          document.body.style.overflow = "hidden";
+        });
+      });
+
+      const closeLightbox = () => {
+        lightbox.classList.remove("active");
+        lightbox.setAttribute("aria-hidden", "true");
+        lightboxImage.src = "";
+        document.body.style.overflow = "";
+      };
+
+      closeBtn.addEventListener("click", closeLightbox);
+      lightbox.addEventListener("click", (event) => {
+        if (event.target === lightbox) closeLightbox();
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && lightbox.classList.contains("active")) {
+          closeLightbox();
+        }
+      });
+    </script>
+  </body>
+</html>
